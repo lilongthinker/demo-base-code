@@ -1,0 +1,84 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: ldap
+  name: ldap
+  namespace: public-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ldap
+    spec:
+      containers:
+      - args:
+        - --copy-service
+          #image: osixia/openldap:1.2.2
+        image: osixia/openldap:latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 10
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: openldap
+          timeoutSeconds: 1
+        name: ldap
+        ports:
+        - containerPort: 389
+          name: openldap
+          protocol: TCP
+        - containerPort: 636
+          name: ssl-ldap-port
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 10
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: openldap
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/ldap
+          name: openldap-data
+          subPath: data
+        - mountPath: /etc/ldap/slapd.d
+          name: openldap-data
+          subPath: config
+        - mountPath: /container/service/slapd/assets/certs
+          name: openldap-data
+          subPath: certs
+        - mountPath: /container/environment/01-custom
+          name: secret-volume
+        - mountPath: /container/run
+          name: container-run
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: openldap-data
+      - name: secret-volume
+        secret:
+          defaultMode: 420
+          secretName: ldap-secret
+      - emptyDir: {}
+        name: container-run
