@@ -5,7 +5,7 @@ metadata:
   namespace: public-service
 spec:
   rules:
-  - host: phpldap.c26a7ab225d1544088735677ed9064580.cn-beijing.alicontainer.com
+  - host: phpldap.c8cbbb54620274052be5ac0f932202e3a.cn-beijing.alicontainer.com
     http:
       paths:
       - backend:

@@ -9,12 +9,10 @@ spec:
   externalTrafficPolicy: Cluster
   ports:
   - name: openldap
-    nodePort: 32045
     port: 389
     protocol: TCP
     targetPort: openldap
   - name: ssl-ldap-port
-    nodePort: 30081
     port: 636
     protocol: TCP
     targetPort: ssl-ldap-port
